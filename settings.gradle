@@ -1,0 +1,2 @@
+rootProject.name='Fisheye2VREquirectangular'
+include ':app'
