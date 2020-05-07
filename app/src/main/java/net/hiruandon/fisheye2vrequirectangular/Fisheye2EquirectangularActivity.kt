@@ -2,10 +2,12 @@ package net.hiruandon.fisheye2vrequirectangular
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Toast
 
 const val REQUEST_IMAGE_CAPTURE = 1
@@ -14,6 +16,8 @@ const val REQUEST_IMAGE_OPEN = 2
 class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
     private var canConvertFlg = false;
+    private var imageView: ImageView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fisheye2_equirectangular)
@@ -21,6 +25,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         val cameraButton = findViewById<Button>(R.id.camera_button)
         val imageButton = findViewById<Button>(R.id.image_button)
         val convertButton = findViewById<Button>(R.id.convert_button)
+        imageView = findViewById(R.id.image_view)
 
         cameraButton.setOnClickListener {
             capturePhoto()
@@ -65,6 +70,10 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
                 // TODO
             }else if(requestCode == REQUEST_IMAGE_OPEN){
                 // TODO
+                val pfDescriptor = getContentResolver().openFileDescriptor(data?.data, "r")
+                val bmp = BitmapFactory.decodeFileDescriptor(pfDescriptor.fileDescriptor)
+                pfDescriptor.close()
+                imageView?.setImageBitmap(bmp)
             }
 
             canConvertFlg = true
