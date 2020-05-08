@@ -23,7 +23,7 @@ const val REQUEST_IMAGE_OPEN = 2
 
 class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
-    private var canConvertFlg = false;
+    private var canConvertFlg = false
     private var imageView: ImageView? = null
     private var fisheyeBmp: Bitmap? = null
 
@@ -99,7 +99,9 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
     }
 
     fun convertImage(){
-        Toast.makeText(this,"test", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this,"test", Toast.LENGTH_SHORT).show()
+        val f = Fisheye2Equirectangular()
+        imageView?.setImageBitmap(f.fisheye2equirectangular(fisheyeBmp as Bitmap,180F))//TODO スレッドで処理すること
         canConvertFlg = false
     }
 
@@ -109,17 +111,20 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
             if(requestCode == REQUEST_IMAGE_CAPTURE){
                 // TODO
                 //fisheyeBmp = data?.extras?.get("data") as Bitmap
-                val pfDescriptor = getContentResolver().openFileDescriptor(fisheyeUri, "r")
-                fisheyeBmp = BitmapFactory.decodeFileDescriptor(pfDescriptor.fileDescriptor)
+                val pfDescriptor = getContentResolver().openFileDescriptor(fisheyeUri as Uri, "r")
+                fisheyeBmp = BitmapFactory.decodeFileDescriptor(pfDescriptor?.fileDescriptor)
 
                 fisheyeUri = null
                 fisheyeTmpFile?.delete()
             }else if(requestCode == REQUEST_IMAGE_OPEN){
                 // TODO
-                val pfDescriptor = getContentResolver().openFileDescriptor(data?.data, "r")
-                fisheyeBmp = BitmapFactory.decodeFileDescriptor(pfDescriptor.fileDescriptor)
-                pfDescriptor.close()
+                val pfDescriptor = getContentResolver().openFileDescriptor(data?.data as Uri, "r")
+                fisheyeBmp = BitmapFactory.decodeFileDescriptor(pfDescriptor?.fileDescriptor)
+                pfDescriptor?.close()
             }
+            //val tmp =
+            //val f = Fisheye2Equirectangular()
+            //imageView?.setImageBitmap(f.fisheye2equirectangular(fisheyeBmp as Bitmap,180F))
             imageView?.setImageBitmap(fisheyeBmp)
 
             canConvertFlg = true
@@ -131,7 +136,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
     private fun createImageFile(): File {
         // Create an image file name
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
