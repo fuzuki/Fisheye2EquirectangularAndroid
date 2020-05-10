@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Fisheye2VREquirectangular</string>
+    <string name="request_grant">許可がないとアプリが実行できません</string>
+    <string name="app_end">実行を終了します</string>
+    <string name="convert">変換</string>
+    <string name="help_url">https://github.com/fuzuki/Fisheye2EquirectangularAndroid/blob/master/MANUAL_ja.md</string>
+</resources>

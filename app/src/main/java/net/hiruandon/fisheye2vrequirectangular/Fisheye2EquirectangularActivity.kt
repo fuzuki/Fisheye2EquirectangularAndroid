@@ -9,16 +9,15 @@ import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.media.ExifInterface
 import android.net.Uri
+import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.Toast
+import android.text.Html
+import android.text.method.LinkMovementMethod
+import android.widget.*
 import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -35,10 +34,8 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
     private var fisheyeTmpFile: File? = null
     private var fisheyeUri: Uri? = null
-    private var currentPhotoPath: String = ""
+    //private var currentPhotoPath: String = ""
     private var progressBar: ProgressBar? = null
-
-    //private var exif: ExifInterface? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +47,14 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         imageView = findViewById(R.id.image_view)
         progressBar = findViewById(R.id.progressBar)
         progressBar?.visibility = ProgressBar.INVISIBLE
+
+        val manual = findViewById<TextView>(R.id.manual)
+        val m = LinkMovementMethod.getInstance()
+        manual.movementMethod = m
+        val manualurl = "<a href='%s'>\uD83D\uDCA1</a>".format(getResources().getString(R.string.help_url))
+        manual.setText(Html.fromHtml(manualurl, Html.FROM_HTML_MODE_LEGACY))
+
+
         cameraButton.setOnClickListener {
             capturePhoto()
         }
@@ -60,20 +65,18 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
         convertButton.setOnClickListener {
             if(canConvertFlg && fisheyeBmp != null){
-                progressBar?.visibility = ProgressBar.VISIBLE
                 convertImage()
+            }else{
+                val toast = Toast.makeText(
+                    this,
+                    "⛔", Toast.LENGTH_SHORT
+                )
+                toast.show()
             }
         }
     }
 
     private fun capturePhoto() {
-        /*
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, null)
-        if (intent.resolveActivity(packageManager) != null) {
-            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
-        }
-         */
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
             // Ensure that there's a camera activity to handle the intent
             takePictureIntent.resolveActivity(packageManager)?.also {
@@ -109,17 +112,23 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
     }
 
     private fun convertImage(){
+        canConvertFlg = false
+        progressBar?.visibility = ProgressBar.VISIBLE
+
         //Toast.makeText(this,"test", Toast.LENGTH_SHORT).show()
+        val task = ImageConvertTask()
+        task.execute(fisheyeBmp)
+
+        /*
         val f = Fisheye2Equirectangular()
         val equiImg = f.fisheye2equirectangular(fisheyeBmp as Bitmap,180F)
-        imageView?.setImageBitmap(equiImg)//TODO スレッドで処理すること
+        imageView?.setImageBitmap(equiImg)
         // 保存用の画像
         val saveImg = Bitmap.createBitmap(equiImg.width * 2, equiImg.height,equiImg.config)
         val canvas = Canvas(saveImg)
         canvas.drawColor(Color.BLACK)
         canvas.drawBitmap(equiImg,equiImg.width/2F,0F,null)
         // 画像保存処理
-        // TODO
         //MediaStore.Images.Media.getContentUri(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         val outFile = createEquirectangularImageFile()
         val outstream = FileOutputStream(outFile)
@@ -129,12 +138,20 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         val exif = ExifInterface(outFile.absolutePath)
 
         //本来はXMPタグを編集すべきだが、仮に対応
+        //https://www.facebook.com/notes/eric-cheng/editing-360-photos-injecting-metadata/10156930564975277/
         exif.setAttribute(ExifInterface.TAG_MAKE,"RICOH")
         exif.setAttribute(ExifInterface.TAG_MODEL,"RICOH THETA S")
         exif.saveAttributes()
 
         galleryAddPic()
-        canConvertFlg = false
+         */
+    }
+
+    private fun convertImageFinish(uri: Uri){
+        val pfDescriptor = getContentResolver().openFileDescriptor(uri, "r")
+        val img = BitmapFactory.decodeFileDescriptor(pfDescriptor?.fileDescriptor)
+        pfDescriptor?.close()
+        imageView?.setImageBitmap(img)
         progressBar?.visibility = ProgressBar.INVISIBLE
     }
 
@@ -142,7 +159,6 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK){
             if(requestCode == REQUEST_IMAGE_CAPTURE){
-                // TODO
                 //fisheyeBmp = data?.extras?.get("data") as Bitmap
                 val pfDescriptor = getContentResolver().openFileDescriptor(fisheyeUri as Uri, "r")
                 fisheyeBmp = BitmapFactory.decodeFileDescriptor(pfDescriptor?.fileDescriptor)
@@ -150,7 +166,6 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
                 fisheyeUri = null
                 fisheyeTmpFile?.delete()
             }else if(requestCode == REQUEST_IMAGE_OPEN){
-                // TODO
                 val pfDescriptor = getContentResolver().openFileDescriptor(data?.data as Uri, "r")
                 fisheyeBmp = BitmapFactory.decodeFileDescriptor(pfDescriptor?.fileDescriptor)
                 pfDescriptor?.close()
@@ -161,9 +176,9 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         }
     }
 
-    private fun galleryAddPic() {
+    private fun galleryAddPic(f:File) {
         Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
-            val f = File(currentPhotoPath)
+            //val f = File(currentPhotoPath)
             mediaScanIntent.data = Uri.fromFile(f)
             sendBroadcast(mediaScanIntent)
         }
@@ -179,7 +194,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
             storageDir /* directory */
         ).apply {
             // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = absolutePath
+            //currentPhotoPath = absolutePath
         }
     }
 
@@ -197,7 +212,53 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
             storageDir /* directory */
         ).apply {
             // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = absolutePath
+            //currentPhotoPath = absolutePath
         }
+    }
+
+    inner class ImageConvertTask : AsyncTask<Bitmap, Int, Void>() {
+        private var uri: Uri = Uri.EMPTY
+        override fun onPreExecute() {
+            //text.setText("始めます")
+            Thread.sleep(800)
+        }
+
+        override fun doInBackground(vararg param: Bitmap?): Void? {
+            val f = Fisheye2Equirectangular()
+            val equiImg = f.fisheye2equirectangular(fisheyeBmp as Bitmap,180F)
+            //imageView?.setImageBitmap(equiImg)
+            // 保存用の画像
+            val saveImg = Bitmap.createBitmap(equiImg.width * 2, equiImg.height,equiImg.config)
+            val canvas = Canvas(saveImg)
+            canvas.drawColor(Color.BLACK)
+            canvas.drawBitmap(equiImg,equiImg.width/2F,0F,null)
+            // 画像保存処理
+            //MediaStore.Images.Media.getContentUri(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            val outFile = createEquirectangularImageFile()
+            val outstream = FileOutputStream(outFile)
+            saveImg.compress(Bitmap.CompressFormat.JPEG,100,outstream)
+            outstream.close()
+            uri = Uri.fromFile(outFile)
+            val exif = ExifInterface(outFile.absolutePath)
+
+            //本来はXMPタグを編集すべきだが、仮に対応
+            //https://www.facebook.com/notes/eric-cheng/editing-360-photos-injecting-metadata/10156930564975277/
+            exif.setAttribute(ExifInterface.TAG_MAKE,"RICOH")
+            exif.setAttribute(ExifInterface.TAG_MODEL,"RICOH THETA S")
+            exif.saveAttributes()
+
+            galleryAddPic(outFile)
+
+            return null
+        }
+
+//        override fun onProgressUpdate(vararg values: Int?) {
+            //text.setText(values[0].toString())
+//        }
+
+        override fun onPostExecute(result: Void?) {
+            convertImageFinish(uri)
+        }
+
     }
 }

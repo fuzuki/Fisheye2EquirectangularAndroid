@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             val toast = Toast.makeText(
                 this,
-                "許可がないとアプリが実行できません", Toast.LENGTH_SHORT
+                getResources().getString(R.string.request_grant), Toast.LENGTH_SHORT
             )
             toast.show()
 
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
                 // それでも拒否された時の対応
                 val toast = Toast.makeText(
                     this,
-                    "実行を終了します", Toast.LENGTH_SHORT
+                    getResources().getString(R.string.app_end), Toast.LENGTH_SHORT
                 )
                 toast.show()
                 finish()

@@ -1,8 +1,9 @@
 # Fisheye2VREquirectangular
 魚眼画像を正距円筒画像に変換するアプリです。  
-100均で買える程度の180°魚眼レンズで、VR可能な正距円筒画像を生成します。360°画像として生成しますが、後ろは真っ暗です。  
+100均で買える程度の180°魚眼レンズで撮影した画像から、VR可能な正距円筒画像を生成します。360°画像として生成しますが、後ろは真っ暗です。  
 ![fisheyelense](img/fisheyelense.jpg) ![a](img/fisheyeimg.jpg)  
-![360image](img/eqimg.jpg)
+![360image](img/eqimg.jpg)  
+画像は100均のVRゴーグルに、Gizmo VRプレイヤー(https://play.google.com/store/apps/details?id=com.GizmoVR.Virtual.Reality.Videos&hl=ja)やVaR's VR Video Player(https://play.google.com/store/apps/details?id=com.abg.VRVideoPlayer&hl=ja)等のVRプレーヤで鑑賞してください。
 ## 参考
 * 写真を撮影する(https://developer.android.com/training/camera/photobasics?hl=ja)
 * 一般的なインテント(https://developer.android.com/guide/components/intents-common)

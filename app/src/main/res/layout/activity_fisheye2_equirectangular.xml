@@ -19,8 +19,8 @@
 
     <Button
         android:id="@+id/camera_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/ic_photo_camera_black_24dp"
@@ -29,8 +29,8 @@
 
     <Button
         android:id="@+id/image_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:layout_marginStart="8dp"
         android:background="@drawable/ic_photo_black_24dp"
         app:layout_constraintStart_toEndOf="@+id/camera_button"
@@ -38,10 +38,14 @@
 
     <Button
         android:id="@+id/convert_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/ic_photo_filter_red_24dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/convert"
+        android:textColor="#3F51B5"
+        android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/camera_button" />
 
@@ -54,5 +58,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/image_view"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/manual"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="?"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
