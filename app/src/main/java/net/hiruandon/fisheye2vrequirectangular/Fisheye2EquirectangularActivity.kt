@@ -26,6 +26,8 @@ import java.util.*
 const val REQUEST_IMAGE_CAPTURE = 1
 const val REQUEST_IMAGE_OPEN = 2
 
+const val JPEG_QUALITY = 90
+
 class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
     private var canConvertFlg = false
@@ -34,7 +36,6 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
     private var fisheyeTmpFile: File? = null
     private var fisheyeUri: Uri? = null
-    //private var currentPhotoPath: String = ""
     private var progressBar: ProgressBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,36 +116,8 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         canConvertFlg = false
         progressBar?.visibility = ProgressBar.VISIBLE
 
-        //Toast.makeText(this,"test", Toast.LENGTH_SHORT).show()
         val task = ImageConvertTask()
         task.execute(fisheyeBmp)
-
-        /*
-        val f = Fisheye2Equirectangular()
-        val equiImg = f.fisheye2equirectangular(fisheyeBmp as Bitmap,180F)
-        imageView?.setImageBitmap(equiImg)
-        // 保存用の画像
-        val saveImg = Bitmap.createBitmap(equiImg.width * 2, equiImg.height,equiImg.config)
-        val canvas = Canvas(saveImg)
-        canvas.drawColor(Color.BLACK)
-        canvas.drawBitmap(equiImg,equiImg.width/2F,0F,null)
-        // 画像保存処理
-        //MediaStore.Images.Media.getContentUri(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        val outFile = createEquirectangularImageFile()
-        val outstream = FileOutputStream(outFile)
-        saveImg.compress(Bitmap.CompressFormat.JPEG,100,outstream)
-        outstream.close()
-
-        val exif = ExifInterface(outFile.absolutePath)
-
-        //本来はXMPタグを編集すべきだが、仮に対応
-        //https://www.facebook.com/notes/eric-cheng/editing-360-photos-injecting-metadata/10156930564975277/
-        exif.setAttribute(ExifInterface.TAG_MAKE,"RICOH")
-        exif.setAttribute(ExifInterface.TAG_MODEL,"RICOH THETA S")
-        exif.saveAttributes()
-
-        galleryAddPic()
-         */
     }
 
     private fun convertImageFinish(uri: Uri){
@@ -159,7 +132,6 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK){
             if(requestCode == REQUEST_IMAGE_CAPTURE){
-                //fisheyeBmp = data?.extras?.get("data") as Bitmap
                 val pfDescriptor = getContentResolver().openFileDescriptor(fisheyeUri as Uri, "r")
                 fisheyeBmp = BitmapFactory.decodeFileDescriptor(pfDescriptor?.fileDescriptor)
 
@@ -178,11 +150,11 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
     private fun galleryAddPic(f:File) {
         Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
-            //val f = File(currentPhotoPath)
             mediaScanIntent.data = Uri.fromFile(f)
             sendBroadcast(mediaScanIntent)
         }
     }
+
     @Throws(IOException::class)
     private fun createImageFile(): File {
         // Create an image file name
@@ -192,10 +164,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
             "JPEG_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
-        ).apply {
-            // Save a file: path for use with ACTION_VIEW intents
-            //currentPhotoPath = absolutePath
-        }
+        )
     }
 
     @Throws(IOException::class)
@@ -210,10 +179,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
             "VR_${timeStamp}_", /* prefix */
             ".jpg", /* suffix */
             storageDir /* directory */
-        ).apply {
-            // Save a file: path for use with ACTION_VIEW intents
-            //currentPhotoPath = absolutePath
-        }
+        )
     }
 
     inner class ImageConvertTask : AsyncTask<Bitmap, Int, Void>() {
@@ -236,7 +202,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
             //MediaStore.Images.Media.getContentUri(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             val outFile = createEquirectangularImageFile()
             val outstream = FileOutputStream(outFile)
-            saveImg.compress(Bitmap.CompressFormat.JPEG,100,outstream)
+            saveImg.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, outstream)
             outstream.close()
             uri = Uri.fromFile(outFile)
             val exif = ExifInterface(outFile.absolutePath)
@@ -251,10 +217,6 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
             return null
         }
-
-//        override fun onProgressUpdate(vararg values: Int?) {
-            //text.setText(values[0].toString())
-//        }
 
         override fun onPostExecute(result: Void?) {
             convertImageFinish(uri)

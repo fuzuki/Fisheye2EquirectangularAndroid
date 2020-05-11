@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Fisheye2VREquirectangular</string>
+    <string name="app_name">Fisheye VR Expander</string>
     <string name="request_grant">Can\'t Start without Permission</string>
     <string name="app_end">App Closing...</string>
     <string name="convert">Convert</string>
