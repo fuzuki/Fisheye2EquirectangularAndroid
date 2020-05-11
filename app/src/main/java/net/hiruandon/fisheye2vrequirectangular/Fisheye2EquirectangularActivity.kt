@@ -120,9 +120,19 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         task.execute(fisheyeBmp)
     }
 
-    private fun convertImageFinish(uri: Uri){
+    private fun convertImageFinish(uri: Uri, width: Int){
         val pfDescriptor = getContentResolver().openFileDescriptor(uri, "r")
-        val img = BitmapFactory.decodeFileDescriptor(pfDescriptor?.fileDescriptor)
+        val options = BitmapFactory.Options()
+        val viewLen = if(imageView?.width as Int> imageView?.height as Int) imageView?.width else imageView?.height
+
+        options.inSampleSize = 1
+        while (viewLen as Int * options.inSampleSize < width){
+            options.inSampleSize = options.inSampleSize * 2
+        }
+        if(options.inSampleSize > 1){
+            options.inSampleSize = options.inSampleSize /2
+        }
+        val img = BitmapFactory.decodeFileDescriptor(pfDescriptor?.fileDescriptor,null,options)
         pfDescriptor?.close()
         imageView?.setImageBitmap(img)
         progressBar?.visibility = ProgressBar.INVISIBLE
@@ -184,6 +194,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
     inner class ImageConvertTask : AsyncTask<Bitmap, Int, Void>() {
         private var uri: Uri = Uri.EMPTY
+        private var width = 1024
         override fun onPreExecute() {
             //text.setText("始めます")
             Thread.sleep(800)
@@ -205,6 +216,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
             saveImg.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, outstream)
             outstream.close()
             uri = Uri.fromFile(outFile)
+            width = saveImg.width
             val exif = ExifInterface(outFile.absolutePath)
 
             //本来はXMPタグを編集すべきだが、仮に対応
@@ -219,7 +231,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         }
 
         override fun onPostExecute(result: Void?) {
-            convertImageFinish(uri)
+            convertImageFinish(uri,width)
         }
 
     }

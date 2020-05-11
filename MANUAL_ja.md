@@ -13,7 +13,7 @@
 ![vrgoggle](img/vrgoggles.jpg)
 
 * VR再生アプリ  
-Google Playでお好きなアプリを選んでください。「Gizmo VRプレイヤー」「VaR's VR Video Player」など、大抵のアプリは静止画のVR表示に対応しています。  
+Google Playでお好きなアプリを選んでください。「VU Gallery VR 360 Photo Viewer」「Gizmo VRプレイヤー」「VaR's VR Video Player」など、大抵のアプリは静止画のVR表示に対応しています。  
 https://play.google.com/store/search?q=vr%E5%86%8D%E7%94%9F&c=apps&hl=ja
 
 ## 使い方
