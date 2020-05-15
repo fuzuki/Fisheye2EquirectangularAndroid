@@ -36,7 +36,7 @@ class Fisheye2Equirectangular {
         canvas.drawBitmap(fisheyeImg,(len-fisheyeImg.width)/2F,(len-fisheyeImg.height)/2F, null)
         // 製法県の回転画像取得完了
 
-        val FOV = (angle * Math.PI)/angle
+        val FOV = (angle * Math.PI)/180F
 
         val equiarray = IntArray(len*len){index: Int ->
             val p = findCorrespondingFisheyePoint(index % len, index / len,len,len,FOV.toFloat())
