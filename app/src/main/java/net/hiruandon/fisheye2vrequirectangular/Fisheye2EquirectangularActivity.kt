@@ -22,6 +22,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
+import androidx.preference.PreferenceManager
 
 const val REQUEST_IMAGE_CAPTURE = 1
 const val REQUEST_IMAGE_OPEN = 2
@@ -55,6 +56,9 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         val manualurl = "<a href='%s'>\uD83D\uDCA1</a>".format(getResources().getString(R.string.help_url))
         manual.setText(Html.fromHtml(manualurl, Html.FROM_HTML_MODE_LEGACY))
 
+        val x1920mode = findViewById<CheckBox>(R.id.x1920mode)
+        val pref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        x1920mode.isChecked = pref.getBoolean("x1920mode",false)
 
         cameraButton.setOnClickListener {
             capturePhoto()
@@ -75,6 +79,16 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
                 toast.show()
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        val x1920mode = findViewById<CheckBox>(R.id.x1920mode)
+        val pref = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        val edit = pref.edit()
+        edit.putBoolean("x1920mode",x1920mode.isChecked)
+        edit.apply()
     }
 
     private fun capturePhoto() {
@@ -115,6 +129,14 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
     private fun convertImage(){
         canConvertFlg = false
         progressBar?.visibility = ProgressBar.VISIBLE
+
+        val x1920mode = findViewById<CheckBox>(R.id.x1920mode)
+        if(x1920mode.isChecked){
+            var img = fisheyeBmp as Bitmap
+            var w = if(img.width > img.height) { 1920/2 } else { (img.width * (1920/2))/ img.height }
+            var h = if(img.width < img.height) { 1920/2 } else { (img.height * (1920/2))/ img.width }
+            fisheyeBmp = Bitmap.createScaledBitmap(img, w, h, true)
+        }
 
         val task = ImageConvertTask()
         task.execute(fisheyeBmp)

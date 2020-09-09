@@ -3,5 +3,6 @@
     <string name="request_grant">Can\'t Start without Permission</string>
     <string name="app_end">App Closing...</string>
     <string name="convert">Convert</string>
+    <string name="x1920mode">x1920 mode</string>
     <string name="help_url">https://github.com/fuzuki/Fisheye2EquirectangularAndroid/blob/master/MANUAL.md</string>
 </resources>

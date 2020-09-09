@@ -34,7 +34,7 @@ class Fisheye2Equirectangular {
         val canvas = Canvas(baseImg)
         canvas.drawColor(Color.BLACK)
         canvas.drawBitmap(fisheyeImg,(len-fisheyeImg.width)/2F,(len-fisheyeImg.height)/2F, null)
-        // 製法県の回転画像取得完了
+        // 正方形の回転画像取得完了
 
         val FOV = (angle * Math.PI)/180F
 
