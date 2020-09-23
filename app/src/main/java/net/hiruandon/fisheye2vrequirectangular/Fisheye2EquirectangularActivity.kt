@@ -133,12 +133,13 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
         val x1920mode = findViewById<CheckBox>(R.id.x1920mode)
         if(x1920mode.isChecked){
             var img = fisheyeBmp as Bitmap
-            var w = if(img.width > img.height) { 1920/2 } else { (img.width * (1920/2))/ img.height }
-            var h = if(img.width < img.height) { 1920/2 } else { (img.height * (1920/2))/ img.width }
+            var w = if(img.width > img.height) { 1920 } else { (img.width * (1920))/ img.height }
+            var h = if(img.width < img.height) { 1920 } else { (img.height * (1920))/ img.width }
             fisheyeBmp = Bitmap.createScaledBitmap(img, w, h, true)
         }
 
         val task = ImageConvertTask()
+        task.x1920mode = x1920mode.isChecked
         task.execute(fisheyeBmp)
     }
 
@@ -217,6 +218,7 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
     inner class ImageConvertTask : AsyncTask<Bitmap, Int, Void>() {
         private var uri: Uri = Uri.EMPTY
         private var width = 1024
+        var x1920mode = false;
         override fun onPreExecute() {
             //text.setText("始めます")
             Thread.sleep(800)
@@ -224,8 +226,14 @@ class Fisheye2EquirectangularActivity : AppCompatActivity() {
 
         override fun doInBackground(vararg param: Bitmap?): Void? {
             val f = Fisheye2Equirectangular()
-            val equiImg = f.fisheye2equirectangular(fisheyeBmp as Bitmap,180F)
+            var equiImg = f.fisheye2equirectangular(fisheyeBmp as Bitmap,180F)
             //imageView?.setImageBitmap(equiImg)
+            if(x1920mode){
+                var img = equiImg as Bitmap
+                //var w = if(img.width > img.height) { 1920/2 } else { (img.width * (1920/2))/ img.height }
+                //var h = if(img.width < img.height) { 1920/2 } else { (img.height * (1920/2))/ img.width }
+                equiImg = Bitmap.createScaledBitmap(img, 960, 960, true)
+            }
             // 保存用の画像
             val saveImg = Bitmap.createBitmap(equiImg.width * 2, equiImg.height,equiImg.config)
             val canvas = Canvas(saveImg)
